@@ -6,42 +6,44 @@ const IP = require('ip');
 
 exports.redirectUrl = async (req, res) => {
     try {
-        const url = await Url.findOne({
-            urlSlug: new RegExp(`^${req.params.urlSlug}$`, 'i'),
+      const url = await Url.findOne({
+        urlSlug: new RegExp(`^${req.params.urlSlug}$`, 'i'),
+      });
+  
+      if (url) {
+        const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        const referer = req.headers.referer || 'Unknown';
+        const ipLocation = await getIpLocation(ipAddress);
+  
+        const newVisit = new Visit({
+          url: url._id,
+          ipAddress,
+          userAgent,
+          referer,
+          country: ipLocation.country || 'Unknown',
+          countryCode: ipLocation.country_code || 'Unknown',
+          city: ipLocation.city || 'Unknown',
+          continent: ipLocation.continent || 'Unknown',
+          latitude: ipLocation.latitude || 'Unknown',
+          longitude: ipLocation.longitude || 'Unknown',
         });
-        if (url) {
-            const ipAddress = IP.address() || req.socket.remoteAddress;
-            const userAgent = req.headers['user-agent'];
-            const referer = req.headers.referer || 'Unknown';
-            const ipLocation = await getIpLocation(ipAddress);
-
-            const newVisit = new Visit({
-                url: url._id,
-                ipAddress,
-                userAgent,
-                referer,
-                country: ipLocation.country || 'Unknown',
-                countryCode: ipLocation.country_code || 'Unknown',
-                city: ipLocation.city || 'Unknown',
-                continent: ipLocation.continent || 'Unknown',
-                latitude: ipLocation.latitude || 'Unknown',
-                longitude: ipLocation.longitude || 'Unknown',
-            });
-
-            await newVisit.save();
-
-            // Increment the clickCount for the corresponding URL
-            await Url.findByIdAndUpdate(url._id, { $inc: { clickCount: 1 } });
-
-            res.redirect(url.originalUrl);
-        } else {
-            res.redirect('/error');
-        }
-    } catch (err) {
-        // console.log(err);
+  
+        await newVisit.save();
+  
+        // Increment the clickCount for the corresponding URL
+        await Url.findByIdAndUpdate(url._id, { $inc: { clickCount: 1 } });
+  
+        res.redirect(url.originalUrl);
+      } else {
         res.redirect('/error');
+      }
+    } catch (err) {
+      console.error(err);
+      res.redirect('/error');
     }
-};
+  };
+  
 
 
 exports.createUrl = async (req, res) => {
@@ -99,7 +101,7 @@ exports.getUrls = async (req, res) => {
             // Add clickCount to each URL in the response
             const urlsWithClickCount = urls.map(url => {
                 return Object.assign({}, url._doc, {
-                    clickCount: url.visitCount.length,
+                    clickCount: url.clickCount,
                 });
             });
 
@@ -112,6 +114,7 @@ exports.getUrls = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
 
 
 exports.checkSlug = async (req, res) => {

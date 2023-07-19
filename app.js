@@ -3,6 +3,9 @@ const cors = require('cors');
 const path = require('path');
 const routes = require('./routes');
 const { redirectUrl } = require('./controllers/url');
+const dotenv = require('dotenv');
+dotenv.config();
+
 
 const app = express();
 
