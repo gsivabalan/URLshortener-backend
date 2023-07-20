@@ -17,31 +17,31 @@ app.use(express.static(path.resolve(__dirname, '..', 'client', 'build')));
 
 app.get('/', (req, res) => {
     res.sendFile(
-        path.resolve(__dirname, '..', 'client', 'build', 'index.html')
+        path.resolve(__dirname, '..', 'client', 'build')
     );
 });
 
 app.get('/login', (req, res) => {
     res.sendFile(
-        path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
+        path.resolve(__dirname, '..', '..', 'client', 'build')
     );
 });
 
 app.get('/register', (req, res) => {
     res.sendFile(
-        path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
+        path.resolve(__dirname, '..', '..', 'client', 'build')
     );
 });
 
 app.get('/error', (req, res) => {
     res.sendFile(
-        path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
+        path.resolve(__dirname, '..', '..', 'client', 'build')
     );
 });
 
 app.get('/logout', (req, res) => {
     res.sendFile(
-        path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
+        path.resolve(__dirname, '..', '..', 'client', 'build')
     );
 });
 
