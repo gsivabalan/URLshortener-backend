@@ -4,8 +4,9 @@ const path = require('path');
 const routes = require('./routes');
 const { redirectUrl } = require('./controllers/url');
 const dotenv = require('dotenv');
-dotenv.config();
+const connectDB = require('./database');
 
+dotenv.config();
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.get('/error', (req, res) => {
         path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
     );
 });
+
 app.get('/logout', (req, res) => {
     res.sendFile(
         path.resolve(__dirname, '..', '..', 'client', 'build', 'index.html')
@@ -47,4 +49,12 @@ app.use('/api', routes);
 
 app.get('/:urlSlug', redirectUrl);
 
-module.exports = app;
+const port = process.env.PORT || 9090;
+const address = `http://localhost:${port}`;
+
+connectDB().then(() => {
+    app.listen(port, function () {
+        if (process.env.NODE_ENV !== 'production')
+            console.log(`starting app on: ${address}`);
+    });
+});
